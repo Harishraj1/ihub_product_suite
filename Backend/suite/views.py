@@ -22,10 +22,13 @@ collection = db[COLLECTION_NAME]
 def submit_data(request):
     if request.method == 'POST':
         title = request.POST.get('title')
+        tagline = request.POST.get('tagline')
         description = request.POST.get('description')
+        key_features = request.POST.get('key_features')
+        tags = request.POST.get('tags')
         image = request.FILES.get('image')
 
-        if not (title and description and image):
+        if not (title and tagline and description and key_features and tags and image):
             return JsonResponse({"error": "All fields are required!"}, status=400)
 
         # Read the image file as binary data
@@ -34,7 +37,10 @@ def submit_data(request):
         # Prepare the data to save in MongoDB
         data = {
             "title": title,
+            "tagline": tagline,
             "description": description,
+            "key_features": key_features,
+            "tags": tags,
             "image": {
                 "data": image_binary,
                 "filename": image.name,
@@ -46,10 +52,10 @@ def submit_data(request):
         result = collection.insert_one(data)
 
         return JsonResponse({"message": "Data saved successfully!", "id": str(result.inserted_id)})
-    
+
     return JsonResponse({"error": "Invalid request method!"}, status=405)
 
-# API to fetch all data
+# API to fetch all data@csrf_exempt
 def fetch_data(request):
     if request.method == 'GET':
         try:
@@ -67,12 +73,21 @@ def fetch_data(request):
 
             for document in cursor:
                 document['_id'] = str(document['_id'])
+
+                # Handle tags field
+                if 'tags' in document:
+                    document['tags'] = json.loads(document['tags'])
+
+                # Handle image field
                 if 'image' in document:
                     image_binary = document['image']['data']
                     image_content_type = document['image']['content_type']
                     base64_image = base64.b64encode(image_binary).decode('utf-8')
                     document['image_data_url'] = f"data:{image_content_type};base64,{base64_image}"
+                    document['filename'] = document['image']['filename']
+                    document['content_type'] = document['image']['content_type']
                     del document['image']
+
                 data.append(document)
 
             return JsonResponse({
@@ -91,6 +106,4 @@ def fetch_data(request):
                 "status": "error",
                 "message": str(e)
             }, status=500)
-
-    return JsonResponse({"error": "Invalid request method!"}, status=405)
 

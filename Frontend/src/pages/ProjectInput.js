@@ -6,7 +6,9 @@ import 'react-toastify/dist/ReactToastify.css';
 const ProjectInput = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-  
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
+
   const {
     register,
     handleSubmit,
@@ -17,10 +19,13 @@ const ProjectInput = () => {
   // Form submission handler
   const onSubmit = async (data) => {
     setIsLoading(true);
-    
+
     const formData = new FormData();
     formData.append('title', data.name);
+    formData.append('tagline', data.tagline);
     formData.append('description', data.description);
+    formData.append('key_features', data.key_features);
+    formData.append('tags', JSON.stringify(tags)); // Send tags as JSON string
     formData.append('image', data.image[0]);
 
     try {
@@ -35,6 +40,7 @@ const ProjectInput = () => {
         toast.success(`Project saved successfully! ID: ${responseData.id}`);
         reset();
         setImagePreview(null);
+        setTags([]); // Clear tags after submission
       } else {
         toast.error(responseData.error || 'Failed to save project');
       }
@@ -44,6 +50,19 @@ const ProjectInput = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle adding a new tag
+  const addTag = () => {
+    if (tagInput.trim()) {
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
+    }
+  };
+
+  // Handle removing a tag
+  const removeTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
   // Image preview handler
@@ -167,6 +186,26 @@ const ProjectInput = () => {
       fontSize: '0.875rem',
       marginTop: '0.5rem',
     },
+    tagsInput: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '0.5rem',
+      marginBottom: '1rem',
+    },
+    tagPill: {
+      display: 'flex',
+      alignItems: 'center',
+      backgroundColor: '#e2e8f0',
+      borderRadius: '12px',
+      padding: '0.5rem 1rem',
+      fontSize: '0.875rem',
+      color: '#1e293b',
+    },
+    tagRemoveButton: {
+      marginLeft: '0.5rem',
+      cursor: 'pointer',
+      color: '#ef4444',
+    },
   };
 
   return (
@@ -180,7 +219,7 @@ const ProjectInput = () => {
             <input
               type="text"
               id="name"
-              {...register('name', { 
+              {...register('name', {
                 required: 'Project name is required',
                 minLength: {
                   value: 3,
@@ -196,10 +235,30 @@ const ProjectInput = () => {
           </div>
 
           <div style={styles.inputGroup}>
+            <label htmlFor="tagline" style={styles.label}>Tagline</label>
+            <input
+              type="text"
+              id="tagline"
+              {...register('tagline', {
+                required: 'Tagline is required',
+                minLength: {
+                  value: 5,
+                  message: 'Tagline must be at least 5 characters'
+                }
+              })}
+              style={styles.input}
+              placeholder="Enter your project tagline"
+            />
+            {errors.tagline && (
+              <p style={styles.errorText}>{errors.tagline.message}</p>
+            )}
+          </div>
+
+          <div style={styles.inputGroup}>
             <label htmlFor="description" style={styles.label}>Description</label>
             <textarea
               id="description"
-              {...register('description', { 
+              {...register('description', {
                 required: 'Description is required',
                 minLength: {
                   value: 10,
@@ -212,6 +271,50 @@ const ProjectInput = () => {
             {errors.description && (
               <p style={styles.errorText}>{errors.description.message}</p>
             )}
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="key_features" style={styles.label}>Key Features</label>
+            <textarea
+              id="key_features"
+              {...register('key_features', {
+                required: 'Key features are required',
+                minLength: {
+                  value: 10,
+                  message: 'Key features must be at least 10 characters'
+                }
+              })}
+              style={styles.textarea}
+              placeholder="List key features of your project"
+            />
+            {errors.key_features && (
+              <p style={styles.errorText}>{errors.key_features.message}</p>
+            )}
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Tags</label>
+            <div style={styles.tagsInput}>
+              {tags.map((tag, index) => (
+                <div key={index} style={styles.tagPill}>
+                  {tag}
+                  <span style={styles.tagRemoveButton} onClick={() => removeTag(tag)}>
+                    &times;
+                  </span>
+                </div>
+              ))}
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                style={{ ...styles.input, flex: 1 }}
+                placeholder="Enter a tag"
+              />
+              <button type="button" onClick={addTag} style={{ ...styles.input, padding: '0.5rem', backgroundColor: '#e2e8f0' }}>
+                Add Tag
+              </button>
+            </div>
           </div>
 
           <div style={styles.inputGroup}>
@@ -279,7 +382,7 @@ const ProjectInput = () => {
           </div>
         </form>
       </div>
-      <ToastContainer 
+      <ToastContainer
         position="bottom-right"
         autoClose={3000}
         hideProgressBar={false}
