@@ -40,7 +40,7 @@ export default function ProductDesc() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Hero Section */}
-            <div className="relative bg-white shadow-md">
+            <div className="relative bg-white shadow-md mx-32">
                 <div className="container mx-auto px-6 py-16 md:flex md:items-center">
                     <div className="md:w-1/2 space-y-6">
                         <h1 className="text-4xl font-bold text-gray-800">{product.title}</h1>
@@ -76,11 +76,17 @@ export default function ProductDesc() {
                     <div>
                         <h2 className="text-2xl font-semibold text-gray-800">Tags</h2>
                         <p className="mt-4 text-gray-800 text-sm">
-                            {product.tags.replace(/[[\]"]/g, '')}
+                            {product.tags
+                                .replace(/[[\]"]/g, '') // Remove brackets and quotes
+                                .split(',') // Split the tags by commas
+                                .map((tag, index) => (
+                                    <span key={index}>
+                                        <span>&#8226; {tag.trim()}</span> {/* Add bullet point with space */}
+                                        {index < product.tags.split(',').length - 1 && <span> </span>} {/* Add space between tags */}
+                                    </span>
+                                ))}
                         </p>
                     </div>
-
-
                 </div>
             </div>
         </div>
