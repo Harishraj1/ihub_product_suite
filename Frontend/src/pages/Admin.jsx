@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const ProjectInput = () => {
+const Admin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [tags, setTags] = useState([]);
@@ -398,4 +398,4 @@ const ProjectInput = () => {
   );
 };
 
-export default ProjectInput;
+export default Admin;

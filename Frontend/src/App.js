@@ -5,7 +5,8 @@ import Home from './pages/Home';
 import Footer from './components/Footer';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
-import Input from './pages/ProjectInput';
+import Admin from './pages/Admin';
+import Product_desc from './pages/Product_desc';
 
 function App() {
   // Custom Layout component to manage Navbar and Footer
@@ -13,6 +14,7 @@ function App() {
     const location = useLocation();
     
     // Hide Navbar and Footer on specific paths
+    
     const hideNavbarAndFooter = location.pathname === '/signup' || location.pathname === '/login';
 
     return (
@@ -36,7 +38,8 @@ function App() {
 
           {/* Signup Page Route */}
           <Route path="/signup" element={<Signup />} />
-          <Route path="/input" element={<Input />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/product_desc/:id" element={<Product_desc />} />
         </Routes>
       </Layout>
     </Router>

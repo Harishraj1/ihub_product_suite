@@ -106,56 +106,64 @@ export default function Home() {
             </div>
 
             {/* our products */}
-<div className='mt-40 px-32'>
-    <h1 className='text-5xl font-medium pb-6'>Our Products</h1>
-    <div className='flex flex-row justify-between'>
-        {loading ? (
-            <div className="w-full flex justify-center items-center h-96">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black"></div>
-            </div>
-        ) : (
-            products.length > 0 ? products.map((product, index) => (
-                <div key={product._id || index} className="flex flex-col items-center relative" style={{ width: '25%', height: '100%' }}>
-                    {/* Image with loading state */}
-                    <div className="w-full h-full relative">
-                        {product.image_data_url ? (
-                            <img 
-                                className='w-full h-full rounded-3xl' 
-                                src={product.image_data_url}
-                                alt={product.title} 
-                                onError={(e) => {
-                                    e.target.src = product1; // Fallback to product1 if image fails to load
-                                    console.error('Image failed to load:', product.image_data_url);
+            <div className='mt-40 px-32'>
+                <h1 className='text-5xl font-medium pb-6'>Our Products</h1>
+                <div className='flex flex-row gap-10 justify-between overflow-hidden' style={{ width: '100%', height: '450px' }}>
+                    {loading ? (
+                        <div className="w-full flex justify-center items-center h-96">
+                            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black"></div>
+                        </div>
+                    ) : (
+                        products.length > 0 ? products.slice(0, 3).map((product, index) => ( // Limit to 3 products
+                            <div
+                                key={product._id || index}
+                                className="flex flex-col items-center relative rounded-xl shadow-xl hover:shadow-3xl transition-shadow overflow-hidden" // Enhanced shadow
+                                style={{
+                                    flex: '1 0 calc(30% - 16px)', // Reduced width of the card
+                                    margin: '0 12px', // Added space between cards
+                                    height: '100%',
+                                    maxHeight: '480px', // Increased height of the card
+                                    backgroundColor: 'white', // Background for better shadow contrast
                                 }}
-                                style={{ 
-                                    boxShadow: 'rgba(136, 165, 191, 0.48) 6px 2px 16px 0px, rgba(255, 255, 255, 0.8) -6px -2px 16px 0px',
-                                    objectFit: 'cover'
-                                }}
-                            />
-                        ) : (
-                            <div className="w-full h-full rounded-3xl bg-gray-200 flex items-center justify-center">
-                                <span className="text-gray-400">No image available</span>
+                            >
+                                {/* Image with dark overlay */}
+                                <div className="w-full h-full relative">
+                                    {product.image_data_url ? (
+                                        <img
+                                            className='w-full h-full object-cover rounded-t-xl' // Ensure shadow only applies to the card
+                                            src={product.image_data_url}
+                                            alt={product.title}
+                                            onError={(e) => {
+                                                e.target.src = product1; // Fallback to product1 if image fails to load
+                                                console.error('Image failed to load:', product.image_data_url);
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full rounded-t-xl bg-gray-200 flex items-center justify-center">
+                                            <span className="text-gray-400">No image available</span>
+                                        </div>
+                                    )}
+                                    {/* Dark overlay */}
+                                    <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                                </div>
+                                <div className="absolute bottom-4 text-center left-0 right-0 text-white p-2">
+                                    <h1 className='text-lg font-bold'>{product.title}</h1>
+                                    <p className='text-sm leading-tight pb-2'>{product.tagline}</p>
+                                    <button
+                                        className='bg-white text-black border rounded-lg px-4 py-1 font-medium hover:bg-gray-100 transition-colors'
+                                        onClick={() => window.location.href = `/product_desc/${product._id}`}
+                                    >
+                                        Learn more
+                                    </button>
+                                </div>
                             </div>
-                        )}
-                    </div>
-                    <div className="absolute bottom-14 text-center left-0 right-0 text-white p-4">
-                        <h1 className='text-3xl'>{product.title}</h1>
-                        <p className='leading-tight pb-2'>{product.description}</p>
-                        <button 
-                            className='bg-white text-black border rounded-lg px-4 py-0.5 font-medium hover:bg-gray-100 transition-colors'
-                            onClick={() => window.location.href = `/product/${product._id}`}
-                        >
-                            Learn more
-                        </button>
-                    </div>
+                        )) : (
+                            <div className="w-full text-center text-gray-500 py-10">
+                                No products available
+                            </div>
+                        )
+                    )}
                 </div>
-            )) : (
-                <div className="w-full text-center text-gray-500 py-10">
-                    No products available
-                </div>
-            )
-        )}
-    </div>
 
                 <div className='flex flex-col mt-12 gap-4'>
                     <div className='flex justify-center gap-10'>

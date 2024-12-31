@@ -1,11 +1,12 @@
 import base64
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from pymongo import MongoClient
 from django.conf import settings
 import os
 import json
+from bson.objectid import ObjectId  # Import ObjectId
 
 # MongoDB Atlas configuration
 MONGO_URI = "mongodb+srv://krish:krish123@productsuite.hpjhf.mongodb.net/"  # Replace with your MongoDB Atlas connection string
@@ -106,4 +107,30 @@ def fetch_data(request):
                 "status": "error",
                 "message": str(e)
             }, status=500)
+
+# API to fetch a single product by ID
+def fetch_product_by_id(request, product_id):
+    if request.method == 'GET':
+        try:
+            # Convert product_id to ObjectId
+            product = collection.find_one({"_id": ObjectId(product_id)})  # Use ObjectId for MongoDB query
+            if product is None:
+                raise Http404("Product not found")
+
+            product['_id'] = str(product['_id'])
+
+            # Handle image field
+            if 'image' in product:
+                image_binary = product['image']['data']
+                image_content_type = product['image']['content_type']
+                base64_image = base64.b64encode(image_binary).decode('utf-8')
+                product['image_data_url'] = f"data:{image_content_type};base64,{base64_image}"
+                product['filename'] = product['image']['filename']
+                product['content_type'] = product['image']['content_type']
+                del product['image']
+
+            return JsonResponse({"status": "success", "data": product})
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
